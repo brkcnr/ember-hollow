@@ -1,6 +1,6 @@
 # Ember Hollow · Autonomous Dungeon
 
-![Ember Hollow with live status report](assets/preview.jpg)
+![Ember Hollow animated gameplay with live status report](assets/preview.gif)
 
 A small, original, top-down dungeon crawler that plays itself forever. Inspired by the autonomous exploration loop in [Auto Adventurer](https://kody-w.github.io/learnwithkody/demos/77-auto-adventurer.html), independently implemented with Canvas 2D. No external assets, packages, network requests, controls, menus or audio. A live status report sits beside the dungeon.
 
