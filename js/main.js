@@ -6,7 +6,7 @@
   const status = DungeonStatus.create();
   const fps = query.get('fps') === '60' ? 60 : 30;
   const step = 1/30, interval = 1000/fps;
-  const state = DungeonCore.create(seed);
+  const state = DungeonCore.create(seed, query.get('biome'));
   const renderer = DungeonRender.createRenderer(document.getElementById('dungeon'));
   let previous = null, lastDraw = -Infinity, lastReport = -Infinity, accumulator = 0;
   renderer.draw(state);

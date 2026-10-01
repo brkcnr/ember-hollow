@@ -3,7 +3,12 @@
   'use strict';
   const WIDTH=960, HEIGHT=540, COLS=48, ROWS=25, TILE=18;
   const DIRS=[[1,0],[0,1],[-1,0],[0,-1]];
-  const THEMES=[{wall:'#7b87b5',floor:'#253141',mist:'#475776'}, {wall:'#83a6a0',floor:'#253934',mist:'#42645d'}, {wall:'#a28caa',floor:'#382b3d',mist:'#615069'}];
+  // Original block palettes: familiar cave moods, without external game textures.
+  const THEMES=[
+    {id:'stone',name:'Stone caverns',wall:'#697b87',floor:'#3a454d',mist:'#699da0',back:'#080f16',rock:['#53606b','#34434b','#778691'],ground:['#3b474e','#394d43','#625748'],accent:'#71d5ce',ore:['#202a33','#d89765','#62d0c0'],pool:2,torch:'#efaf56',particle:'#b2d3d0'},
+    {id:'ember',name:'Ember depths',wall:'#ad5944',floor:'#63342f',mist:'#ae3d27',back:'#160b0e',rock:['#873e35','#442f38','#b66a4c'],ground:['#63322e','#392c39','#89492f'],accent:'#ffb751',ore:['#edaa55','#e25439','#b580be'],pool:3,torch:'#ffae41',particle:'#ffb064'},
+    {id:'void',name:'Void reach',wall:'#afa88b',floor:'#686752',mist:'#8265bf',back:'#0c0918',rock:['#aaa78a','#353046','#ccc3a3'],ground:['#77735a','#393145','#92866b'],accent:'#c89aff',ore:['#c492eb','#585367','#e0cf8c'],pool:4,torch:'#bf8cef',particle:'#c1a0e8'}
+  ];
   const NAMES=['Skeleton','Moss zombie','Cave spider'];
   function report(s,text,type='journey'){s.eventId++;s.events.push({id:s.eventId,time:s.time,text,type});if(s.events.length>64)s.events.shift();}
   function records(s){s.best.depth=Math.max(s.best.depth,s.depth);s.best.kills=Math.max(s.best.kills,s.runStats.kills);s.best.survival=Math.max(s.best.survival,s.runStats.time);}
@@ -12,14 +17,17 @@
   function random(seed){let n=seed>>>0;return function(){n=(n+0x6D2B79F5)>>>0;let t=Math.imul(n^(n>>>15),n|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
   const key=(x,y)=>y*COLS+x;
   function floor(d,x,y){return x>=0&&x<COLS&&y>=0&&y<ROWS&&d.tiles[key(x,y)]===1;}
-  function generate(seed,run,depth){
+  function generate(seed,run,depth,biome){
     const rand=random(hash(seed+':'+run+':'+depth)), tiles=new Uint8Array(COLS*ROWS), rooms=[];
     function carve(x,y){if(x>0&&x<COLS-1&&y>0&&y<ROWS-1)tiles[key(x,y)]=1;}
     for(let attempt=0;attempt<240&&rooms.length<13;attempt++){
       const w=5+Math.floor(rand()*5),h=4+Math.floor(rand()*4),x=2+Math.floor(rand()*(COLS-w-4)),y=2+Math.floor(rand()*(ROWS-h-4));
       if(rooms.some(r=>x<r.x+r.w+2&&x+w+2>r.x&&y<r.y+r.h+2&&y+h+2>r.y))continue;
       rooms.push({x,y,w,h,cx:x+Math.floor(w/2),cy:y+Math.floor(h/2)});
-      for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)carve(xx,yy);
+      for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++){
+        if((xx===x||xx===x+w-1)&&(yy===y||yy===y+h-1))continue;
+        carve(xx,yy);
+      }
     }
     // A connected tree with occasional extra passages: every generated room is reachable.
     function join(a,b){let x=a.cx,y=a.cy;const horiz=rand()>.5;
@@ -34,18 +42,46 @@
     // Begin in a central chamber, keeping the initial scene visible on different displays.
     const start=rooms.reduce((a,b)=>Math.hypot(a.cx-24,a.cy-12)<Math.hypot(b.cx-24,b.cy-12)?a:b);
     const end=rooms.reduce((a,b)=>Math.abs(a.cx-start.cx)+Math.abs(a.cy-start.cy)>Math.abs(b.cx-start.cx)+Math.abs(b.cy-start.cy)?a:b);
+    const theme=THEMES.find(t=>t.id===biome)||THEMES[(depth-1)%THEMES.length];
+    const artSeed=hash(seed+':art:'+run+':'+depth),terrainRand=random(artSeed);
+    // Jagged outcrops grow from existing room edges, keeping every added tile connected.
+    for(const r of rooms)for(let i=0;i<4;i++){
+      const x=r.x+1+Math.floor(terrainRand()*(r.w-2)),y=r.y+1+Math.floor(terrainRand()*(r.h-2));
+      if(i%2===0){carve(x,r.y-1);carve(x,r.y);if(terrainRand()>.5)carve(x+1,r.y-1);}
+      else{carve(r.x+r.w,y);carve(r.x+r.w-1,y);if(terrainRand()>.5)carve(r.x+r.w,y+1);}
+    }
+    const materials=new Uint8Array(COLS*ROWS),ores=new Uint8Array(COLS*ROWS);
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+      // Coarse regions produce actual veins and block patches rather than random confetti.
+      const patch=random(hash(artSeed+':patch:'+Math.floor(x/4)+':'+Math.floor(y/3)))();
+      materials[key(x,y)]=patch<.24?1:patch>.84?2:0;
+      const vein=random(hash(artSeed+':ore:'+Math.floor(x/3)+':'+Math.floor(y/3)))();
+      if(!tiles[key(x,y)]&&vein>.64&&terrainRand()>.36)ores[key(x,y)]=1+Math.floor(vein*9)%3;
+    }
+    function connected(){
+      const seen=new Uint8Array(COLS*ROWS),q=[key(start.cx,start.cy)];seen[q[0]]=1;
+      for(let i=0;i<q.length;i++)for(const[dx,dy]of DIRS){const x=q[i]%COLS+dx,y=Math.floor(q[i]/COLS)+dy,k=key(x,y);if(x>=0&&x<COLS&&y>=0&&y<ROWS&&tiles[k]===1&&!seen[k]){seen[k]=1;q.push(k);}}
+      return q.length===tiles.reduce((sum,t)=>sum+(t===1),0);
+    }
+    // Pools are impassable scenery. Roll back any pool that would sever a route.
+    for(const r of rooms){
+      if(r===start||r===end||terrainRand()<.3)continue;
+      const x=r.x+1+Math.floor(terrainRand()*(r.w-3)),y=r.y+1+Math.floor(terrainRand()*(r.h-3)),changed=[];
+      for(let yy=y;yy<y+2;yy++)for(let xx=x;xx<x+2;xx++)if(tiles[key(xx,yy)]===1){changed.push(key(xx,yy));tiles[key(xx,yy)]=theme.pool;}
+      if(!connected())for(const k of changed)tiles[k]=1;
+    }
     const occupied=new Set([key(start.cx,start.cy),key(end.cx,end.cy)]),enemies=[],items=[],torches=[];
-    function place(r){for(let i=0;i<30;i++){const x=r.x+1+Math.floor(rand()*(r.w-2)),y=r.y+1+Math.floor(rand()*(r.h-2)),k=key(x,y);if(!occupied.has(k)){occupied.add(k);return{x,y};}}return null;}
+    function place(r){for(let i=0;i<30;i++){const x=r.x+1+Math.floor(rand()*(r.w-2)),y=r.y+1+Math.floor(rand()*(r.h-2)),k=key(x,y);if(tiles[k]===1&&!occupied.has(k)){occupied.add(k);return{x,y};}}return null;}
     rooms.forEach((r,i)=>{
       torches.push({x:r.x-.15,y:r.y+r.h*.5,phase:rand()*10});
       torches.push({x:r.x+r.w-.85,y:r.y+1,phase:rand()*10});
       if(r!==start){const p=place(r);if(p)enemies.push({...p,px:p.x,py:p.y,id:i,type:i%3,hp:7+depth*3+(i%3)*2,hit:0,cooldown:0,phase:rand()*6,facing:0});}
       const p=place(r);if(p)items.push({...p,type:r===start?'potion':['gold','potion','relic'][i%3],taken:false});
     });
-    return{tiles,rooms,start:{x:start.cx,y:start.cy},exit:{x:end.cx,y:end.cy},enemies,items,torches,seen:new Uint8Array(COLS*ROWS),visible:new Uint8Array(COLS*ROWS),visited:new Uint8Array(COLS*ROWS),floorCount:tiles.reduce((sum,t)=>sum+t,0),theme:THEMES[(depth-1)%3],artSeed:hash(seed+':art:'+run+':'+depth)};
+    return{tiles,rooms,start:{x:start.cx,y:start.cy},exit:{x:end.cx,y:end.cy},enemies,items,torches,seen:new Uint8Array(COLS*ROWS),visible:new Uint8Array(COLS*ROWS),visited:new Uint8Array(COLS*ROWS),floorCount:tiles.reduce((sum,t)=>sum+(t===1),0),materials,ores,theme,artSeed};
   }
   function sight(d,x0,y0,x1,y1){let dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy;
-    while(x0!==x1||y0!==y1){if(!floor(d,x0,y0))return false;const e=err*2;if(e>-dy){err-=dy;x0+=sx;}if(e<dx){err+=dx;y0+=sy;}}
+    while(x0!==x1||y0!==y1){if(d.tiles[key(x0,y0)]===0)return false;const e=err*2;if(e>-dy){err-=dy;x0+=sx;}if(e<dx){err+=dx;y0+=sy;}}
     return true;
   }
   function reveal(s){const d=s.dungeon,h=s.hero;d.visible.fill(0);
@@ -61,8 +97,8 @@
   }
   function facing(dx,dy){return Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy<0?2:0);}
   function newHero(){return{x:0,y:0,px:0,py:0,rx:0,ry:0,face:1,facing:0,aimX:1,aimY:0,hp:36,maxHp:36,attack:5,defense:0,level:1,xp:0,potions:1,gold:0,hit:0,slash:0,heal:0};}
-  function create(seed){const s={seed:String(seed),run:1,depth:1,time:0,turn:0,tick:.22,age:0,hero:newHero(),dungeon:null,explored:0,particles:[],effects:[],transition:null,kills:0,deaths:0,descents:0,loot:0,goal:null,intent:'Exploring',events:[],eventId:0,runStats:runStats(),best:{depth:1,kills:0,survival:0}};load(s);return s;}
-  function load(s){s.dungeon=generate(s.seed,s.run,s.depth);const h=s.hero;h.x=h.px=h.rx=s.dungeon.start.x;h.y=h.py=h.ry=s.dungeon.start.y;h.hit=h.slash=h.heal=0;s.explored=0;s.age=0;s.turn=0;s.tick=.3;s.goal=null;s.intent='Exploring';s.particles.length=0;s.effects.length=0;reveal(s);report(s,s.depth===1?'Run '+s.run+' · an adventurer enters the dungeon.':'Descended to depth '+s.depth+'.');records(s);}
+  function create(seed,biome){const s={biomeOverride:THEMES.some(t=>t.id===biome)?biome:null,seed:String(seed),run:1,depth:1,time:0,turn:0,tick:.22,age:0,hero:newHero(),dungeon:null,explored:0,particles:[],effects:[],transition:null,kills:0,deaths:0,descents:0,loot:0,goal:null,intent:'Exploring',events:[],eventId:0,runStats:runStats(),best:{depth:1,kills:0,survival:0}};load(s);return s;}
+  function load(s){s.dungeon=generate(s.seed,s.run,s.depth,s.biomeOverride);const h=s.hero;h.x=h.px=h.rx=s.dungeon.start.x;h.y=h.py=h.ry=s.dungeon.start.y;h.hit=h.slash=h.heal=0;s.explored=0;s.age=0;s.turn=0;s.tick=.3;s.goal=null;s.intent='Exploring';s.particles.length=0;s.effects.length=0;reveal(s);report(s,s.depth===1?'Run '+s.run+' · entered '+s.dungeon.theme.name.toLowerCase()+'.':'Descended to depth '+s.depth+' · '+s.dungeon.theme.name.toLowerCase()+'.');records(s);}
   function burst(s,x,y,color,count){const rand=random(hash(s.seed+':'+s.time+':'+x+':'+y));for(let i=0;i<count&&s.particles.length<120;i++)s.particles.push({x,y,vx:(rand()-.5)*3,vy:(rand()-.5)*3,life:.3+rand()*.5,color});}
   function effect(s,x,y,color){if(s.effects.length<12)s.effects.push({x,y,color,life:.7});}
   function attack(s,e){const h=s.hero;s.intent='Fighting · '+NAMES[e.type].toLowerCase();h.face=e.x-h.x||h.face;h.aimX=e.x-h.x;h.aimY=e.y-h.y;h.facing=facing(h.aimX,h.aimY);h.slash=.24;e.hp-=h.attack+h.level;e.hit=.22;burst(s,e.x,e.y,'#e6b97c',6);

@@ -7,8 +7,8 @@
     const bar=document.querySelector('.health'),fill=bar.querySelector('i'),log=document.getElementById('action-log');
     let logId=-1;
     function update(s){const h=s.hero,r=s.runStats,b=s.best;
-      let revealed=0;for(let i=0;i<s.dungeon.tiles.length;i++)if(s.dungeon.tiles[i]&&s.dungeon.seen[i])revealed++;
-      const values={depthPadded:String(s.depth).padStart(2,'0'),run:s.run,location:['Drowned cloister','Verdant crypt','Ash cathedral'][(s.depth-1)%3],bestDepth:b.depth,bestKills:b.kills,bestSurvival:clock(b.survival),deaths:s.deaths,hp:Math.max(0,h.hp)+' / '+h.maxHp,combat:(h.attack+h.level)+' / '+h.defense,level:h.level+' · '+h.xp+' / '+(h.level*12),turns:s.depth+' / '+r.turns,wealth:r.kills+' / '+h.gold,survival:clock(r.time),revealed:Math.round(revealed/s.dungeon.floorCount*100)+'%',weapon:'Iron blade'+(h.attack>5?' +'+(h.attack-5):''),armor:h.defense>0?'Tunic · guard '+h.defense:"Traveler's tunic",potions:h.potions+' / '+r.potions,intent:s.intent};
+      let revealed=0;for(let i=0;i<s.dungeon.tiles.length;i++)if(s.dungeon.tiles[i]===1&&s.dungeon.seen[i])revealed++;
+      const values={depthPadded:String(s.depth).padStart(2,'0'),run:s.run,location:s.dungeon.theme.name,bestDepth:b.depth,bestKills:b.kills,bestSurvival:clock(b.survival),deaths:s.deaths,hp:Math.max(0,h.hp)+' / '+h.maxHp,combat:(h.attack+h.level)+' / '+h.defense,level:h.level+' · '+h.xp+' / '+(h.level*12),turns:s.depth+' / '+r.turns,wealth:r.kills+' / '+h.gold,survival:clock(r.time),revealed:Math.round(revealed/s.dungeon.floorCount*100)+'%',weapon:'Iron blade'+(h.attack>5?' +'+(h.attack-5):''),armor:h.defense>0?'Tunic · guard '+h.defense:"Traveler's tunic",potions:h.potions+' / '+r.potions,intent:s.intent};
       for(const[name,value]of Object.entries(values)){const text=String(value),el=fields.get(name);if(el&&el.textContent!==text)el.textContent=text;}
       fill.style.width=Math.max(0,Math.min(100,h.hp/h.maxHp*100))+'%';
       bar.setAttribute('aria-valuenow',Math.max(0,h.hp));bar.setAttribute('aria-valuemax',h.maxHp);
