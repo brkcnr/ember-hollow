@@ -10,6 +10,12 @@ A blocky pixel adventurer in a teal shirt and blue trousers explores a procedura
 
 This replaces the first side-view prototype. All rendering and simulation are original; no code or assets were copied from the reference. The status sidebar shows health, attack/defense, level and XP, depth and turns, kills and gold, survival, map exploration, inventory and the current goal. Session records track deepest depth, most kills and longest survival across automatic restarts. A bounded action log reports real discoveries, fights, loot, healing, leveling and descents. Records reset when the page is reloaded; they are not saved to disk. The report is informational and requires no input. Add `?hud=0` for the scene-only screensaver view.
 
+## Pixel inventory HUD
+
+The stats lane uses original pixel hearts, defense shields, a segmented green XP bar, equipment slots, item stack counts, a character portrait, beveled stone panels and an adventure log. Hearts represent the fraction of current maximum health; the exact HP and defense values remain visible. All counters and meters reflect the simulation. Compact layouts keep the health, level, XP and key stats readable on smaller screens.
+
+The original **Ember Pixel** font is only 1.8 KB and is included locally; the offline exporter embeds it in `standalone.html`. Regenerate the font with `python3 tools/pixel-font.py` using the Python standard library. There are no external fonts, game assets or runtime packages.
+
 ## Block cave biomes
 
 Caves cycle automatically with each descent: **Stone caverns → Ember depths → Void reach**. Jagged chamber edges, beveled block faces, clustered ore veins and glowing portals replace the old glyph walls. All textures are original Canvas pixel art, cached once per cave; there are no external assets or dependencies.

@@ -14,9 +14,37 @@
     <section class="stage" aria-label="Dungeon">
       <header class="stage-header"><span>EMBER HOLLOW <b> / AUTO ADVENTURER</b></span><span>DEPTH <b data-field="depthPadded">01</b></span></header>
       <canvas id="dungeon" width="960" height="540" aria-label="An autonomous top-down dungeon crawler exploring rooms, gathering loot and fighting creatures"></canvas>
-      <footer class="stage-footer"><span class="live-dot"></span><span data-field="location">Drowned cloister</span><span class="stage-run">RUN <b data-field="run">1</b></span></footer>
+      <footer class="stage-footer"><span class="live-dot"></span><span data-field="location">Stone caverns</span><span class="stage-run">RUN <b data-field="run">1</b></span></footer>
     </section>
     <aside class="report" aria-label="Live status report">
+      <section class="panel current">
+        <h2>ADVENTURER <span>RUN <b data-field="run">1</b></span></h2>
+        <div class="character-sheet">
+          <div class="portrait-slot"><canvas id="portrait" width="64" height="64" aria-label="Pixel adventurer portrait"></canvas></div>
+          <div class="character-info"><strong>EMBER EXPLORER</strong><span data-field="location">Stone caverns</span><span class="rank">LEVEL <b data-field="heroLevel">1</b></span></div>
+        </div>
+        <div class="health-label"><span>HEALTH</span><strong data-field="hp">36 / 36</strong></div>
+        <div class="icon-meter health" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="36" aria-valuenow="36"></div>
+        <div class="health-label armor-label"><span>DEFENSE</span><strong data-field="guard">0 / 3</strong></div>
+        <div class="icon-meter armor-meter" role="progressbar" aria-label="Defense" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"></div>
+        <div class="xp-label"><span>LEVEL <b data-field="heroLevel">1</b> / XP</span><strong data-field="xp">0 / 12</strong></div>
+        <div class="meter experience" role="progressbar" aria-label="Experience" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><i></i></div>
+        <dl class="stats">
+          <div><dt><span data-icon="sword"></span>DAMAGE</dt><dd data-field="attack">6</dd></div>
+          <div><dt><span data-icon="gold"></span>GOLD</dt><dd data-field="gold">0</dd></div>
+          <div><dt><span data-icon="skull"></span>KILLS</dt><dd data-field="kills">0</dd></div>
+          <div><dt><span data-icon="stairs"></span>DEPTH / TURNS</dt><dd data-field="depth">1</dd></div>
+          <div><dt><span data-icon="clock"></span>SURVIVAL</dt><dd data-field="survival">0:00</dd></div>
+          <div><dt><span data-icon="map"></span>EXPLORED</dt><dd data-field="revealed">0%</dd></div>
+        </dl>
+        <h3>INVENTORY</h3>
+        <div class="inventory" aria-label="Equipment and supplies">
+          <div class="equipment"><div class="item-slot"><span data-icon="sword"></span></div><span data-field="weapon">Iron blade</span></div>
+          <div class="equipment"><div class="item-slot"><span data-icon="tunic"></span></div><span data-field="armor">Traveler's tunic</span></div>
+          <div class="equipment"><div class="item-slot"><span data-icon="potion"></span><strong class="stack-count" data-field="potionCount">1</strong></div><span>POTIONS <b data-field="potionsUsed">0</b> USED</span></div>
+        </div>
+        <div class="goal"><span class="live-dot"></span><span data-field="intent">Exploring</span></div>
+      </section>
       <section class="panel records">
         <h2>BEST RUN <span>THIS SESSION</span></h2>
         <div class="record-grid">
@@ -26,27 +54,7 @@
           <div><strong data-field="deaths">0</strong><span>Runs ended</span></div>
         </div>
       </section>
-      <section class="panel current">
-        <h2>CURRENT RUN <span>ADVENTURER</span></h2>
-        <div class="health-label"><span>HEALTH</span><strong data-field="hp">36 / 36</strong></div>
-        <div class="meter health" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="36" aria-valuenow="36"><i></i></div>
-        <dl class="stats">
-          <div><dt>Attack / Defense</dt><dd data-field="combat">6 / 0</dd></div>
-          <div><dt>Level · XP</dt><dd data-field="level">1 · 0 / 12</dd></div>
-          <div><dt>Depth / Turns</dt><dd data-field="turns">1 / 0</dd></div>
-          <div><dt>Kills / Gold</dt><dd data-field="wealth">0 / 0</dd></div>
-          <div><dt>Survival</dt><dd data-field="survival">0:00</dd></div>
-          <div><dt>Map revealed</dt><dd data-field="revealed">0%</dd></div>
-        </dl>
-        <h3>INVENTORY</h3>
-        <dl class="stats inventory">
-          <div><dt>Weapon</dt><dd data-field="weapon">Iron blade</dd></div>
-          <div><dt>Armor</dt><dd data-field="armor">Traveler's tunic</dd></div>
-          <div><dt>Potions / Used</dt><dd data-field="potions">1 / 0</dd></div>
-        </dl>
-        <div class="goal"><span class="live-dot"></span><span data-field="intent">Exploring</span></div>
-      </section>
-      <section class="panel action-panel"><h2>ACTION LOG</h2><ol id="action-log" aria-label="Recent dungeon events"></ol></section>
+      <section class="panel action-panel"><h2>ADVENTURE LOG</h2><ol id="action-log" aria-label="Recent dungeon events"></ol></section>
     </aside>
   </main>
   <script src="./js/core.js"></script>
