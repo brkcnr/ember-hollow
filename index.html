@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080e16">
+  <meta name="description" content="An original, autonomous dungeon crawler screensaver.">
+  <title>Ember Hollow</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="layout">
+    <section class="stage" aria-label="Dungeon">
+      <header class="stage-header"><span>EMBER HOLLOW <b> / AUTO ADVENTURER</b></span><span>DEPTH <b data-field="depthPadded">01</b></span></header>
+      <canvas id="dungeon" width="960" height="540" aria-label="An autonomous top-down dungeon crawler exploring rooms, gathering loot and fighting creatures"></canvas>
+      <footer class="stage-footer"><span class="live-dot"></span><span data-field="location">Drowned cloister</span><span class="stage-run">RUN <b data-field="run">1</b></span></footer>
+    </section>
+    <aside class="report" aria-label="Live status report">
+      <section class="panel records">
+        <h2>BEST RUN <span>THIS SESSION</span></h2>
+        <div class="record-grid">
+          <div><strong data-field="bestDepth">1</strong><span>Deepest depth</span></div>
+          <div><strong data-field="bestKills">0</strong><span>Most kills</span></div>
+          <div><strong data-field="bestSurvival">0:00</strong><span>Longest survival</span></div>
+          <div><strong data-field="deaths">0</strong><span>Runs ended</span></div>
+        </div>
+      </section>
+      <section class="panel current">
+        <h2>CURRENT RUN <span>ADVENTURER</span></h2>
+        <div class="health-label"><span>HEALTH</span><strong data-field="hp">36 / 36</strong></div>
+        <div class="meter health" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="36" aria-valuenow="36"><i></i></div>
+        <dl class="stats">
+          <div><dt>Attack / Defense</dt><dd data-field="combat">6 / 0</dd></div>
+          <div><dt>Level · XP</dt><dd data-field="level">1 · 0 / 12</dd></div>
+          <div><dt>Depth / Turns</dt><dd data-field="turns">1 / 0</dd></div>
+          <div><dt>Kills / Gold</dt><dd data-field="wealth">0 / 0</dd></div>
+          <div><dt>Survival</dt><dd data-field="survival">0:00</dd></div>
+          <div><dt>Map revealed</dt><dd data-field="revealed">0%</dd></div>
+        </dl>
+        <h3>INVENTORY</h3>
+        <dl class="stats inventory">
+          <div><dt>Weapon</dt><dd data-field="weapon">Iron blade</dd></div>
+          <div><dt>Armor</dt><dd data-field="armor">Traveler's tunic</dd></div>
+          <div><dt>Potions / Used</dt><dd data-field="potions">1 / 0</dd></div>
+        </dl>
+        <div class="goal"><span class="live-dot"></span><span data-field="intent">Exploring</span></div>
+      </section>
+      <section class="panel action-panel"><h2>ACTION LOG</h2><ol id="action-log" aria-label="Recent dungeon events"></ol></section>
+    </aside>
+  </main>
+  <script src="./js/core.js"></script>
+  <script src="./js/sprites.js"></script>
+  <script src="./js/render.js"></script>
+  <script src="./js/status.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

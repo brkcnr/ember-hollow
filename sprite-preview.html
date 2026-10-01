@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Ember Hollow · Sprite study</title>
+<style>html,body{margin:0;background:#080d15;color:#bec8d6;font-family:Menlo,monospace}canvas{display:block;width:960px;height:440px;image-rendering:pixelated}</style>
+<canvas id="sprites" width="960" height="440" aria-label="Pixel adventurer facing four directions, skeleton, zombie and spider"></canvas>
+<script src="./js/sprites.js"></script><script>
+const ctx=document.getElementById('sprites').getContext('2d');ctx.imageSmoothingEnabled=false;ctx.fillStyle='#080d15';ctx.fillRect(0,0,960,440);
+ctx.font='13px Menlo,monospace';ctx.fillStyle='#8999ac';ctx.fillText('EMBER HOLLOW / CHARACTER STUDY',35,35);
+ctx.font='11px Menlo,monospace';
+const labels=['SOUTH','EAST','NORTH','WEST'];
+for(let i=0;i<4;i++){ctx.save();ctx.translate(135+i*225,125);ctx.scale(6,6);DungeonSprites.draw(ctx,'hero',0,0,i,0,false,false,0,0,false);ctx.restore();ctx.fillStyle='#b2bfcf';ctx.textAlign='center';ctx.fillText(labels[i],135+i*225,200);}
+const mobs=['skeleton','zombie','spider'],names=['BONE SENTINEL','MOSS ZOMBIE','CAVE SPIDER'];
+for(let i=0;i<3;i++){ctx.save();ctx.translate(245+i*235,310);ctx.scale(6,6);DungeonSprites.draw(ctx,mobs[i],0,0,0,0,false,false,0,0,false);ctx.restore();ctx.fillStyle='#b2bfcf';ctx.textAlign='center';ctx.fillText(names[i],245+i*235,390);}
+</script></html>
