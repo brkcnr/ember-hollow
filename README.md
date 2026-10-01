@@ -17,7 +17,7 @@ Open **standalone.html** in Safari or another modern browser. This complete offl
 For an HTTP preview, run this inside the project folder:
 
 ```sh
-python3 -m http.server 8765 --bind 127.0.0.1
+python -m http.server 8765 --bind 127.0.0.1
 ```
 
 Visit **http://127.0.0.1:8765/**. Keep the server running while using that address; Control-C stops it. If the port is busy, choose another port. The editable `index.html` also opens directly in a normal browser. Python is only an optional preview/export tool, not a runtime dependency.
@@ -31,28 +31,6 @@ file:///Users/YOUR_MAC_USERNAME/Screensavers/EmberHollow/standalone.html
 ```
 
 Replace the username with yours. Keep this offline copy outside Documents, Desktop and Downloads: the [upstream configuration guide](https://github.com/liquidx/webviewscreensaver#configuration) says those folders can be inaccessible to the screensaver on Catalina and newer. The page starts immediately without audio autoplay permission or user input. JavaScript must be enabled. Verify playback with the full macOS screensaver preview; browser testing does not confirm every native screensaver version.
-
-## GitHub Pages
-
-Publish the contents of this folder at the repository root, with `index.html` at the top level. No build step is needed; relative asset paths support project subpaths and `.nojekyll` enables static publishing.
-
-1. Create an empty GitHub repository named `ember-hollow` (public works with GitHub Free).
-2. From this project folder, replace the username and run:
-
-```sh
-git init -b main
-git add .
-git commit -m "Add autonomous dungeon screensaver"
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/ember-hollow.git
-git push -u origin main
-```
-
-3. Open the repository's **Settings → Pages**.
-4. Choose **Deploy from a branch → main → /(root) → Save**.
-5. Wait for deployment and open the live URL displayed in Settings. It normally looks like `https://YOUR_GITHUB_USERNAME.github.io/ember-hollow/`.
-6. Add that URL to WebViewScreenSaver, duration `-1`.
-
-Later commits pushed to `main` republish automatically. See the [official Pages guide](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 ## Structure
 
@@ -91,7 +69,7 @@ Effects are capped at 120 transient particles and 12 rings. Floor entities, visi
 Edit character palettes and shapes in `js/sprites.js`, or environment colors and glyphs in `js/render.js`, dungeon generation or AI in `js/core.js`. Rebuild the portable version after changes:
 
 ```sh
-python3 tools/export.py
+python tools/export.py
 ```
 
 Reload the browser, and commit both editable sources and `standalone.html` when publishing updates.
